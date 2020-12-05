@@ -1,0 +1,10 @@
+MyProtoConfigExtension.java
+ MyProtoConfigExtension
+CompilerProtoTask.java
+ CompilerProtoTask
+MyProtoPlugin.java
+ MyProtoPlugin
+ MyProtoPlugin$1
+ MyProtoPlugin$2
+ MyProtoPlugin$3
+ MyProtoPlugin$4
