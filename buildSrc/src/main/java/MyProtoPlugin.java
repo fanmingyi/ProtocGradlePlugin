@@ -13,11 +13,9 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.wrapper.Logger;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
-import javafx.application.Application;
 
 public class MyProtoPlugin implements Plugin<Project> {
 
@@ -53,7 +51,7 @@ public class MyProtoPlugin implements Plugin<Project> {
                 MyProtoConfigExtension myProtoConfigExtension = project.getExtensions().getByType(MyProtoConfigExtension.class);
                 compilerProto.protoDir = myProtoConfigExtension.protoDirPath;
 
-
+                //如果当前是android工程链接生成的源码路径到编译路径
                 if (isAndroidProject(project)) {
                     linkAndroidProject(project);
                 } else {
@@ -66,7 +64,6 @@ public class MyProtoPlugin implements Plugin<Project> {
     }
 
     void linkAndroidProject(Project project) {
-
         if (project.getPlugins().hasPlugin(com.android.build.gradle.AppPlugin.class)) {
             //当前是Android 应用工程
             //Android 插件提供了扩展
@@ -79,6 +76,7 @@ public class MyProtoPlugin implements Plugin<Project> {
             AppExtension extension = (AppExtension) (project.getExtensions().getByName("android"));
             extension.getApplicationVariants().all(configurationAndroidVariant(project));
             extension.getTestVariants().all(configurationAndroidVariant(project));
+            extension.getUnitTestVariants().all(configurationAndroidVariant(project));
 
             extension.getApplicationVariants().all(new Action<ApplicationVariant>() {
                 @Override
@@ -98,10 +96,11 @@ public class MyProtoPlugin implements Plugin<Project> {
             LibraryExtension extension = (LibraryExtension) (project.getExtensions().getByName("android"));
             extension.getLibraryVariants().all(configurationAndroidVariant(project));
             extension.getLibraryVariants().all(configurationAndroidVariant(project));
+            extension.getUnitTestVariants().all(configurationAndroidVariant(project));
+
         }
     }
 
-    @NotNull
     private Action<BaseVariant> configurationAndroidVariant(Project project) {
 
         return new Action<BaseVariant>() {
@@ -117,13 +116,22 @@ public class MyProtoPlugin implements Plugin<Project> {
 
 
     void linkJavaProject(Project project) {
+
         SourceSetContainer container = project.getExtensions().getByType(SourceSetContainer.class);
+
+        //遍历所有源集合 比如main等
         for (SourceSet sourceSet : container) {
+            //getCompileTaskName用于获取这个sourceSet提供的编译java文件的task
+            //比如我我有一个SourceSet名为MySource，那么编译任务名称为compileMySourceJava
+            //利用这个函数我们快速拿到这个Task的名称
             String compileName = sourceSet.getCompileTaskName("java");
+            //获取这个Task实例
             JavaCompile javaCompile = (JavaCompile) project.getTasks().getByName(compileName);
-            Task compilerProto = project.getTasks().getByName("compilerProto");
+            //执行ava编译的时候，先执行编译proto文件任务
+            CompilerProtoTask compilerProto = (CompilerProtoTask) project.getTasks().getByName("compilerProto");
             javaCompile.dependsOn(compilerProto);
-            sourceSet.getJava().srcDirs(compilerProto.getOutputs().getFiles().getFiles());
+            //proto任务的输出目录附加到sourceSet中
+            sourceSet.getJava().srcDirs(compilerProto.outGeneratedDir);
         }
 
     }

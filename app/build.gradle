@@ -8,7 +8,6 @@ protoConfig {
 }
 android {
     compileSdkVersion 30
-//    testBuildType 'release'
     defaultConfig {
         applicationId "com.example.myapplication"
         minSdkVersion 21
@@ -65,6 +64,15 @@ android {
             versionNameSuffix "-full"
         }
     }
+    unitTestVariants.all{variant->
+        //可在此配置变体的信息
+        println "unitTestVariants 变体 ${variant.name}"
+    }
+    testVariants.all { variant->
+        //可在此配置变体的信息
+        println "变体 ${variant.name}"
+    }
+
 }
 
 dependencies {

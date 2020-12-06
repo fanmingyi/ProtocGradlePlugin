@@ -1,7 +1,7 @@
-MyProtoConfigExtension.java
- MyProtoConfigExtension
 CompilerProtoTask.java
  CompilerProtoTask
+MyProtoConfigExtension.java
+ MyProtoConfigExtension
 MyProtoPlugin.java
  MyProtoPlugin
  MyProtoPlugin$1

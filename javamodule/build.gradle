@@ -1,0 +1,40 @@
+plugins {
+    id 'java'
+
+    id 'kotlin'
+}
+apply plugin: MyProtoPlugin
+
+//配置要编译protobuf文件位置
+protoConfig {
+    protoDirPath = "src/main/proto"
+}
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_7
+    targetCompatibility = JavaVersion.VERSION_1_7
+}
+sourceSets {
+    //自定义
+    mySource {
+        java.srcDir("src/myjava")
+        resources.srcDir("my/res")
+    }
+    //系统默认提供
+    main {
+
+    }
+}
+tasks.create("mysourceJar", Jar) {
+    from(sourceSets.mySource.output)
+}
+
+afterEvaluate {
+    println((sourceSets.main.getRuntimeClasspath()).files);
+
+}
+dependencies {
+    implementation 'com.google.protobuf:protobuf-java:+'
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    runtimeOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+}
